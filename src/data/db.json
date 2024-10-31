@@ -1,0 +1,33 @@
+{
+    "spells": [
+      {
+        "id":1,
+        "name": "Brightlance",
+        "spell_list":["Divine"],
+        "level": 0,
+        "school": "Evocation",
+        "range": "Self",
+        "casting_time": "1 Action",
+        "duration": "Instantaneous",
+        "attack_save": "attack",
+        "components":["S","GV", "M"],
+        "greater_verbal_component": "Celestial",
+        "material_component":"A shard of glass",
+        "description":"You summon a bolt of pure Radiant energy and hurl it at an opponent like a lance. The spell acts like a lance, in that it has the range property (30/120). On a hit, you deal 1d8 Radiant Damage. (This spell can critically hit, the crit range is 20 and the crit modifier is x2.)"
+      },
+      {
+        "id":2,
+        "name": "Alarm",
+        "spell_list":["Arcane","Primal", "Psychic"],
+        "level": 1,
+        "school": "Abjuration",
+        "range": "30 Feet Emanation",
+        "casting_time": "1 Minute",
+        "duration": "8 Hours",
+        "ritual": true,
+        "components":["S","V", "M"],
+        "material_component":"A Tiny Bell",
+        "description":"You set an alarm against unwanted intrusion. Choose a door, a window, or an area within range that is no larger than a 20-foot cube. Until the spell ends, an alarm alerts you whenever a Tiny or larger creature touches or enters the warded area. When you cast the spell, you can designate creatures that won't set off the alarm. You also choose whether the alarm is mental or audible.\n A mental alarm alerts you with a ping in your mind if you are within 1 mile of the warded area. This ping awakens you if you are sleeping. An audible alarm produces the sound of a hand bell near you for 10 seconds"
+      }
+    ]
+  }
