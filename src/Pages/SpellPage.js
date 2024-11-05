@@ -1,5 +1,9 @@
 import { useEffect, useState} from 'react'; 
 import SpellList from './SpellList.js';
+import dynamo_client from '../Common/DynamoClient.js';
+import { ExecuteStatementCommand } from '@aws-sdk/client-dynamodb';
+import formatElementFromDynamoDB from '../Common/CommonMethods.js';
+
 const SpellPage = () => {
     const Schools = ['All', 'Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation']
     const Spell_List = ['All', 'Arcane', 'Divine', 'Primal', 'Psychic']
@@ -18,81 +22,75 @@ const SpellPage = () => {
     const [spell_list, setSpellList] = useState('All')
     const [attack_save, setAttackSave] = useState('Either');
    
+    const formatDataFromDynamoDB = (data) => {
+        return data.map((element) => {
+            return formatElementFromDynamoDB(element);
+        });
+    };
+
     const sortData = (data) => {
         return data.sort((a, b) => {
-          if (a.name < b.name) {
-            return -1;
-          }
-          if (a.name > b.name) {
-            return 1;
-          }
-          return 0;
+            if (a.name < b.name) {
+                return -1;
+            }
+            if (a.name > b.name) {
+                return 1;
+            }
+            return 0;
         });
-      };
+    };
 
-      useEffect(() => {
+    useEffect(() => {
         Search();
-     },[name, level, school, spell_list, attack_save]);
+    },[name, level, school, spell_list, attack_save]);
 
 
-     const createQuery=()=>{
-        let base_line_query = "http://localhost:8000/spells";
-        let query = base_line_query;
+    const createQuery=()=>{
+        let query = "SELECT * FROM \"SpellList\""
         let paramaters = [];
-        if(name){
-            paramaters.push(`name=${name}`);
+        if(name!==''){
+            paramaters.push(`name = '${name}'`);
         }
         if(level!=='All'){
             let level_num = Levels.find((x)=>x.name===level).number;
-            paramaters.push(`level=${level_num}`);
+            paramaters.push(`level = ${level_num}`);
         }
         if(school!=='All'){
-            paramaters.push(`school=${school}`);
+            paramaters.push(`school='${school}'`);
         }
-        if(spell_list!=='All'){
-            paramaters.push(`spell_list=${spell_list}`);
-        }
+        // if(spell_list!=='All'){
+        //     paramaters.push(`spell_list contains('${spell_list}')`);
+        // }
         if(attack_save!=='Either'){
-            paramaters.push(`attack_save=${attack_save}`);
+            paramaters.push(`attack_save='${(attack_save.toLowerCase())}'`);
         }
         if(paramaters.length>0){
-            query += "?";
-            query += paramaters.join("&");
+            query += " WHERE ";
+            query += paramaters.join(" and ");
         }
         console.log(query)
 
         return query;
-     }
+    }
 
      const Search = () => {
-        const abortCont = new AbortController();
-        fetch(createQuery(), {signal: abortCont.signal})
-        .then(response =>{
-            if(!response.ok){
-                throw Error("Could not fetch data")
-            }
-            return response.json();
-        })
-        .then(data =>{
-            setSpells(sortData(data))
+        dynamo_client.send(new ExecuteStatementCommand({
+            Statement: createQuery()
+        })).then((response)=>{
+            console.log(response)
+            setSpells(sortData(formatDataFromDynamoDB(response.Items)))
             setIsPending(false)
             setError(null);
+        }).catch((error)=>{
+            console.log(error)
+            console.log(error.message)
+            setError(error.message)
+            setIsPending(false)
         })
-        .catch(err =>{
-            if(err.name === "AbortError"){
-                console.log("fetch aborted")
-            }else{
-                console.log(err.message)
-                setError(err.message)
-                setIsPending(false)
-            }
-        })
-        return ()=> abortCont.abort();
      }
 
     return ( 
         <div className="home">
-
             <label>Spell Name:</label>
             <input 
                 type="text"
@@ -117,14 +115,14 @@ const SpellPage = () => {
                 Schools.map( (x) => 
                     <option key={x}>{x}</option> )
             }</select>
-            <label>Spell List:</label>
+            {/* <label>Spell List:</label>
             <select
                 value={spell_list}
                 onChange={(e)=>setSpellList(e.target.value)}
             >{
                 Spell_List.map( (x) => 
                     <option key={x}>{x}</option> )
-            }</select>
+            }</select> */}
             <label>Attack|Save</label>
             <select
                 value={attack_save}
@@ -141,7 +139,7 @@ const SpellPage = () => {
                 <SpellList spells={spells}/>
             </div>}
         </div> 
-     );
+    );
 }
  
 export default SpellPage;
