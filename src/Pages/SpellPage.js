@@ -6,7 +6,6 @@ import formatElementFromDynamoDB from '../Common/CommonMethods.js';
 
 const SpellPage = () => {
     const Schools = ['All', 'Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation']
-    const Spell_List = ['All', 'Arcane', 'Divine', 'Primal', 'Psychic']
     const Attack_Save = ['Either', 'Attack', "Str", "Dex", "Con", "Wis", 'Int', "Cha"]
     const Levels = [{name:'All', number:-1},{name:'Cantrip', number:0}, {name:'1st', number:1}, {name:'2nd', number:2}, {name:'3rd', number:3}, {name:'4th', number:4}, {name:'5th', number:5}, {name:'6th', number:6}, {name:'7th', number:7}, {name:'8th', number:8}, {name:'9th', number:9}]
 
@@ -19,7 +18,6 @@ const SpellPage = () => {
     const [name, setName] = useState('')
     const [level, setLevel] = useState('All')
     const [school, setSchool] = useState('All')
-    const [spell_list, setSpellList] = useState('All')
     const [attack_save, setAttackSave] = useState('Either');
    
     const formatDataFromDynamoDB = (data) => {
@@ -42,7 +40,7 @@ const SpellPage = () => {
 
     useEffect(() => {
         Search();
-    },[name, level, school, spell_list, attack_save]);
+    },[name, level, school, attack_save]);
 
 
     const createQuery=()=>{
@@ -58,9 +56,6 @@ const SpellPage = () => {
         if(school!=='All'){
             paramaters.push(`school='${school}'`);
         }
-        // if(spell_list!=='All'){
-        //     paramaters.push(`spell_list contains('${spell_list}')`);
-        // }
         if(attack_save!=='Either'){
             paramaters.push(`attack_save='${(attack_save.toLowerCase())}'`);
         }
@@ -115,14 +110,6 @@ const SpellPage = () => {
                 Schools.map( (x) => 
                     <option key={x}>{x}</option> )
             }</select>
-            {/* <label>Spell List:</label>
-            <select
-                value={spell_list}
-                onChange={(e)=>setSpellList(e.target.value)}
-            >{
-                Spell_List.map( (x) => 
-                    <option key={x}>{x}</option> )
-            }</select> */}
             <label>Attack|Save</label>
             <select
                 value={attack_save}
